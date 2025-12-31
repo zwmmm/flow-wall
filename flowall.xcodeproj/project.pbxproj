@@ -1,0 +1,374 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA0001 /* FlowWallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000 /* FlowWallApp.swift */; };
+		AA0003 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0002 /* AppDelegate.swift */; };
+		AA0007 /* VideoWallpaperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0006 /* VideoWallpaperManager.swift */; };
+		AA0011 /* VideoFileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0010 /* VideoFileManager.swift */; };
+		AA0013 /* StatusItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0012 /* StatusItemManager.swift */; };
+		AA0017 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0016 /* SettingsView.swift */; };
+		AA0019 /* WallpaperPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0018 /* WallpaperPanelView.swift */; };
+		AA0021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0020 /* Assets.xcassets */; };
+		AA3D13EE2F04EAF000D06F4E /* FlowWallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */; };
+		AA3D13EF2F04EAF000D06F4E /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */; };
+		AA3D13F22F05005300D06F4E /* OnlineWallpaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */; };
+		AA3D13F32F05005300D06F4E /* OnlineWallpaperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */; };
+		AA3D13F42F050E8D00D06F4E /* OnlineWallpaperViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */; };
+		AA3D13F52F050E8E00D06F4E /* LocalWallpaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */; };
+		AA3D13F72F050FE200D06F4E /* WallpaperDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA0000 /* FlowWallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowWallApp.swift; sourceTree = "<group>"; };
+		AA0002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		AA0006 /* VideoWallpaperManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoWallpaperManager.swift; sourceTree = "<group>"; };
+		AA0010 /* VideoFileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoFileManager.swift; sourceTree = "<group>"; };
+		AA0012 /* StatusItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemManager.swift; sourceTree = "<group>"; };
+		AA0016 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA0018 /* WallpaperPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperPanelView.swift; sourceTree = "<group>"; };
+		AA0020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0022 /* flowall.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = flowall.entitlements; sourceTree = "<group>"; };
+		AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
+		AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowWallApp.swift; sourceTree = "<group>"; };
+		AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperListView.swift; sourceTree = "<group>"; };
+		AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperManager.swift; sourceTree = "<group>"; };
+		AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperViewModel.swift; sourceTree = "<group>"; };
+		AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWallpaperListView.swift; sourceTree = "<group>"; };
+		AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperDatabase.swift; sourceTree = "<group>"; };
+		AACCC0 /* flowall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowall.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AABBCC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AABB00 = {
+			isa = PBXGroup;
+			children = (
+				AABB01 /* flowall */,
+				AABB02 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AABB01 /* flowall */ = {
+			isa = PBXGroup;
+			children = (
+				AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */,
+				AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */,
+				AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */,
+				AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */,
+				AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */,
+				AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */,
+				AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */,
+				AA0000 /* FlowWallApp.swift */,
+				AA0002 /* AppDelegate.swift */,
+				AA0006 /* VideoWallpaperManager.swift */,
+				AA0010 /* VideoFileManager.swift */,
+				AA0012 /* StatusItemManager.swift */,
+				AA0016 /* SettingsView.swift */,
+				AA0018 /* WallpaperPanelView.swift */,
+				AA0020 /* Assets.xcassets */,
+				AA0022 /* flowall.entitlements */,
+			);
+			path = flowall;
+			sourceTree = "<group>";
+		};
+		AABB02 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AACCC0 /* flowall.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AADD00 /* flowall */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AADD01 /* Build configuration list for PBXNativeTarget "flowall" */;
+			buildPhases = (
+				AABBDD /* Sources */,
+				AABBCC /* Frameworks */,
+				AABBEE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = flowall;
+			productName = flowall;
+			productReference = AACCC0 /* flowall.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAFFFF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = AAFFEE /* Build configuration list for PBXProject "flowall" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AABB00;
+			productRefGroup = AABB02 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AADD00 /* flowall */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AABBEE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0021 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AABBDD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA3D13EE2F04EAF000D06F4E /* FlowWallApp.swift in Sources */,
+				AA3D13F52F050E8E00D06F4E /* LocalWallpaperListView.swift in Sources */,
+				AA3D13EF2F04EAF000D06F4E /* AppConstants.swift in Sources */,
+				AA0001 /* FlowWallApp.swift in Sources */,
+				AA3D13F22F05005300D06F4E /* OnlineWallpaperListView.swift in Sources */,
+				AA3D13F32F05005300D06F4E /* OnlineWallpaperManager.swift in Sources */,
+				AA3D13F42F050E8D00D06F4E /* OnlineWallpaperViewModel.swift in Sources */,
+				AA0003 /* AppDelegate.swift in Sources */,
+				AA0007 /* VideoWallpaperManager.swift in Sources */,
+				AA0011 /* VideoFileManager.swift in Sources */,
+				AA0013 /* StatusItemManager.swift in Sources */,
+				AA0017 /* SettingsView.swift in Sources */,
+				AA3D13F72F050FE200D06F4E /* WallpaperDatabase.swift in Sources */,
+				AA0019 /* WallpaperPanelView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AAConf0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = flowall/flowall.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Flowall;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flowall.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AAConf1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_ENTITLEMENTS = flowall/flowall.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Flowall;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.lifestyle";
+				INFOPLIST_KEY_LSUIElement = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.flowall.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		AAConf2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AAConf3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AADD01 /* Build configuration list for PBXNativeTarget "flowall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAConf0 /* Debug */,
+				AAConf1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAFFEE /* Build configuration list for PBXProject "flowall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAConf2 /* Debug */,
+				AAConf3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AAFFFF /* Project object */;
+}
