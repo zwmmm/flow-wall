@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "xcodebuild",
+      "args": [
+        "-project",
+        "FlowWall.xcodeproj",
+        "-scheme",
+        "FlowWall",
+        "-configuration",
+        "Debug",
+        "-derivedDataPath",
+        "./build",
+        "CONFIGURATION_BUILD_DIR=${workspaceFolder}/build/Debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    }
+  ]
+}
