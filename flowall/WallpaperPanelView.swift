@@ -53,7 +53,7 @@ class WallpaperPanelController: NSObject {
 
 struct WallpaperPanelView: View {
 
-    @State private var selectedTab = 0
+    @State private var selectedTab = 1  // 默认展示在线壁纸库
     @State private var localWallpapers: [URL] = []
     @State private var thumbnails: [String: NSImage] = [:]
     @State private var isLoading = false

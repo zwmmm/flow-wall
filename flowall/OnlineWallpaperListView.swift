@@ -43,54 +43,112 @@ extension View {
     }
 }
 
-// MARK: - 壁纸卡片组件
-struct WallpaperCard: View {
+// MARK: - 优化的壁纸卡片（虚拟列表核心）
+struct OptimizedWallpaperCard: View {
     let wallpaper: OnlineWallpaper
-    let videoURL: URL?
-    let previewVideoURL: String?
-    let thumbnail: NSImage?
     let isDownloaded: Bool
+    let isDownloading: Bool  // 新增：是否正在下载
+    let thumbnail: NSImage?
     let onAction: () -> Void
-    let onHover: (Bool) -> Void
 
     @State private var isHovered = false
+    @State private var isInViewport = false
+    @State private var shouldPlayVideo = false
+    @StateObject private var playerPool = VideoPlayerPool.shared
 
     var body: some View {
-        ZStack(alignment: .center) {
-            // 显示优先级: 已下载 > 预览视频 > 缩略图
-            if isDownloaded, let localVideoURL = videoURL {
-                VideoAutoPlayer(url: localVideoURL)
-            } else if let previewURLString = previewVideoURL,
-                      let previewURL = URL(string: previewURLString) {
-                WebMVideoPlayer(url: previewURL)
-            } else if let thumbnail = thumbnail {
-                Image(nsImage: thumbnail)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            } else {
-                Color.gray.opacity(0.2)
-            }
-
-            // 悬停时显示按钮
-            if isHovered {
-                ZStack {
-                    Color.black.opacity(0.3)
-
-                    Button(action: onAction) {
-                        Image(systemName: isDownloaded ? "play.fill" : "arrow.down.circle.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white)
-                    }
-                    .buttonStyle(.plain)
+        GeometryReader { geometry in
+            ZStack(alignment: .center) {
+                // 永远使用在线预览视频
+                if shouldPlayVideo {
+                    WebMVideoPlayer(url: URL(string: wallpaper.previewUrl)!)
+                } else if let thumbnail = thumbnail {
+                    Image(nsImage: thumbnail)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } else {
+                    Color.gray.opacity(0.2)
                 }
+
+                // Hover 遮罩
+                if isHovered {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                        Button(action: onAction) {
+                            if isDownloading {
+                                // 下载中：显示 loading
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(1.5)
+                            } else if isDownloaded {
+                                // 已下载：显示播放图标
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.white)
+                            } else {
+                                // 未下载：显示下载图标
+                                Image(systemName: "arrow.down.circle.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(isDownloading)  // 下载中禁用按钮
+                    }
+                }
+            }
+            .frame(height: 140)
+            .clipped()
+            .cornerRadius(8)
+            .onAppear {
+                updateViewportStatus(geometry: geometry)
+            }
+            .onDisappear {
+                if shouldPlayVideo {
+                    playerPool.deactivatePlayer()
+                    shouldPlayVideo = false
+                }
+                isInViewport = false
+            }
+            .onChange(of: geometry.frame(in: .global)) { _, _ in
+                updateViewportStatus(geometry: geometry)
+            }
+            .onHover { hovering in
+                isHovered = hovering
+            }
+            .onTapGesture {
+                onAction()
             }
         }
         .frame(height: 140)
-        .clipped()
-        .cornerRadius(8)
-        .onHover { hovering in
-            isHovered = hovering
-            onHover(hovering)
+    }
+
+    // 可视区域检测 + 播放器池管理
+    private func updateViewportStatus(geometry: GeometryProxy) {
+        let frame = geometry.frame(in: .global)
+        let panelHeight: CGFloat = 620
+        let buffer: CGFloat = 150  // 预加载缓冲区
+
+        let isVisible = frame.minY < panelHeight + buffer && frame.maxY > -buffer
+
+        if isVisible != isInViewport {
+            isInViewport = isVisible
+
+            if isVisible {
+                // 进入可视区域：延迟启动视频
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    if isInViewport && playerPool.canActivatePlayer() {
+                        playerPool.activatePlayer()
+                        shouldPlayVideo = true
+                    }
+                }
+            } else {
+                // 离开可视区域：立即停止视频
+                if shouldPlayVideo {
+                    playerPool.deactivatePlayer()
+                    shouldPlayVideo = false
+                }
+            }
         }
     }
 }
@@ -105,9 +163,9 @@ struct OnlineWallpaperListView: View {
             // 搜索框
             searchBar
 
-            // 壁纸列表
+            // 壁纸列表或空状态
             if viewModel.wallpapers.isEmpty && !viewModel.isLoading {
-                emptyView
+                emptyStateView
             } else {
                 wallpaperList
             }
@@ -115,9 +173,7 @@ struct OnlineWallpaperListView: View {
         .overlay(alignment: .bottom) {
             errorOverlay
         }
-        .onAppear {
-            viewModel.loadDefaultWallpapers()
-        }
+        // 移除 onAppear 的 loadDefaultWallpapers()
     }
 
     // MARK: - 搜索框
@@ -168,24 +224,17 @@ struct OnlineWallpaperListView: View {
         ScrollView {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.wallpapers) { wallpaper in
-                    WallpaperCard(
+                    OptimizedWallpaperCard(
                         wallpaper: wallpaper,
-                        videoURL: viewModel.getLocalVideoURL(for: wallpaper),
-                        previewVideoURL: viewModel.previewURLs[wallpaper.url],
-                        thumbnail: viewModel.thumbnails[wallpaper.url],
                         isDownloaded: viewModel.isWallpaperDownloaded(wallpaper),
+                        isDownloading: viewModel.downloadingIds.contains(wallpaper.id),
+                        thumbnail: viewModel.thumbnails[wallpaper.id],
                         onAction: {
                             viewModel.handleWallpaperAction(wallpaper)
-                        },
-                        onHover: { isHovering in
-                            if isHovering {
-                                // Hover 时懒加载预览URL
-                                viewModel.loadPreviewOnHover(for: wallpaper)
-                            }
                         }
                     )
                     .onAppear {
-                        // 加载缩略图
+                        // 加载缩略图（备用）
                         viewModel.loadThumbnail(for: wallpaper)
 
                         // 触底加载
@@ -210,7 +259,7 @@ struct OnlineWallpaperListView: View {
                 }
 
                 // 没有更多数据
-                if !viewModel.hasMorePages && !viewModel.wallpapers.isEmpty {
+                if viewModel.currentPage >= viewModel.totalPages && !viewModel.wallpapers.isEmpty {
                     Text("已加载全部")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
@@ -223,19 +272,19 @@ struct OnlineWallpaperListView: View {
         .hideScrollIndicators()
     }
 
-    // MARK: - 空视图
-    private var emptyView: some View {
+    // MARK: - 空状态视图
+    private var emptyStateView: some View {
         VStack(spacing: 15) {
             Image(systemName: "photo.on.rectangle.angled")
                 .font(.system(size: 48, weight: .thin))
                 .foregroundColor(.secondary.opacity(0.6))
 
             VStack(spacing: 6) {
-                Text("壁纸库")
+                Text("在线壁纸库")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.primary)
 
-                Text("输入关键词搜索全球精选壁纸")
+                Text("输入关键词搜索精选壁纸")
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }

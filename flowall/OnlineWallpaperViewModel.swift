@@ -1,59 +1,33 @@
 import Foundation
 import AppKit
 
-// MARK: - 在线壁纸 ViewModel
+// MARK: - 在线壁纸 ViewModel（API 版本）
 @MainActor
 class OnlineWallpaperViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var wallpapers: [OnlineWallpaper] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var thumbnails: [String: NSImage] = [:]
-    @Published var previewURLs: [String: String] = [:]  // 懒加载的预览URL缓存
-    @Published var hasMorePages: Bool = true  // 是否还有更多页面
+    @Published var thumbnails: [String: NSImage] = [:]  // 缩略图缓存（备用）
+    @Published var currentPage = 0
+    @Published var totalPages = 0
+    @Published var downloadingIds: Set<String> = []  // 正在下载的壁纸 ID
 
     // MARK: - Private Properties
-    private let manager = OnlineWallpaperManager.shared
-    private let database = WallpaperDatabase.shared
-    private var hasLoadedDefault = false
+    private let apiClient = OnlineWallpaperAPIClient.shared
+    private var currentSearch: String = ""
     private var downloadQueue: [OnlineWallpaper] = []
     private var isDownloading = false
 
-    // MARK: - Initialization
-    func loadDefaultWallpapers() {
-        guard !hasLoadedDefault else { return }
-        hasLoadedDefault = true
-
-        let defaultQuery = "School Girl"
-
-        // 先从数据库加载缓存
-        let cached = database.getWallpapers(query: defaultQuery, limit: 10)
-        if !cached.isEmpty {
-            wallpapers = cached
-            return
-        }
-
-        // 从网络加载
-        manager.updateSearchQuery(defaultQuery)
-        manager.reset()
-        Task {
-            await loadMore()
-        }
-    }
-
-    // MARK: - Search
+    // MARK: - 搜索（移除默认关键词）
     func performSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let actualQuery = trimmedQuery.isEmpty ? "School Girl" : trimmedQuery
 
         // 重置所有状态
-        manager.updateSearchQuery(actualQuery)
-        manager.reset()
-
-        // 同步重置 ViewModel 状态
+        currentSearch = trimmedQuery
+        currentPage = 0
+        totalPages = 0
         wallpapers.removeAll()
-        hasMorePages = true
-        isLoading = false
 
         // 开始加载新搜索结果
         Task {
@@ -61,11 +35,11 @@ class OnlineWallpaperViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Load More
+    // MARK: - 加载更多
     func loadMore() async {
-        // 检查状态,避免重复加载
-        guard !isLoading, hasMorePages else {
-            print("⚠️ loadMore 被跳过: isLoading=\(isLoading), hasMorePages=\(hasMorePages)")
+        // 检查状态，避免重复加载
+        guard !isLoading, currentPage < totalPages || currentPage == 0 else {
+            print("⚠️ loadMore 被跳过: isLoading=\(isLoading), currentPage=\(currentPage), totalPages=\(totalPages)")
             return
         }
 
@@ -73,25 +47,20 @@ class OnlineWallpaperViewModel: ObservableObject {
         isLoading = true
 
         do {
-            // Manager 返回本次新加载的数据
-            let newWallpapers = try await manager.loadNextPage()
+            // 调用 API 获取数据
+            let response = try await apiClient.fetchWallpapers(
+                page: currentPage + 1,
+                limit: 20,
+                search: currentSearch.isEmpty ? nil : currentSearch
+            )
 
-            print("✅ loadNextPage 完成, 新增壁纸数: \(newWallpapers.count)")
+            // 追加新数据
+            wallpapers.append(contentsOf: response.data.items)
+            currentPage = response.data.pagination.page
+            totalPages = response.data.pagination.totalPages
 
-            if !newWallpapers.isEmpty {
-                // 追加新数据到 ViewModel
-                wallpapers.append(contentsOf: newWallpapers)
-                hasMorePages = manager.hasMorePages
+            print("✅ 加载完成, 新增: \(response.data.items.count), 总数: \(wallpapers.count), 页码: \(currentPage)/\(totalPages)")
 
-                print("✅ 追加完成, 总壁纸数: \(wallpapers.count), hasMorePages: \(hasMorePages)")
-
-                // 保存到数据库
-                database.saveWallpapers(wallpapers, query: manager.searchQuery)
-            } else {
-                // 没有新数据
-                hasMorePages = false
-                print("⚠️ 没有新增数据, 标记为无更多页")
-            }
         } catch {
             print("❌ loadMore 失败: \(error)")
             showError(error.localizedDescription)
@@ -100,33 +69,19 @@ class OnlineWallpaperViewModel: ObservableObject {
         isLoading = false
     }
 
-    // MARK: - Hover Preview (懒加载预览URL)
-    func loadPreviewOnHover(for wallpaper: OnlineWallpaper) {
-        // 如果已下载或已有预览URL，直接返回
-        if isWallpaperDownloaded(wallpaper) || previewURLs[wallpaper.url] != nil {
-            return
-        }
-
-        Task {
-            if let previewURL = await manager.fetchPreviewVideoURL(from: wallpaper.url) {
-                previewURLs[wallpaper.url] = previewURL
-            }
-        }
-    }
-
-    // MARK: - Thumbnail Loading
+    // MARK: - 缩略图加载（保留作为备用）
     func loadThumbnail(for wallpaper: OnlineWallpaper) {
-        guard thumbnails[wallpaper.url] == nil, !isWallpaperDownloaded(wallpaper) else {
+        guard thumbnails[wallpaper.id] == nil, !isWallpaperDownloaded(wallpaper) else {
             return
         }
 
         Task {
-            guard let url = URL(string: wallpaper.thumbnail) else { return }
+            guard let url = URL(string: wallpaper.coverUrl) else { return }
 
             do {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 if let image = NSImage(data: data) {
-                    thumbnails[wallpaper.url] = image
+                    thumbnails[wallpaper.id] = image
                 }
             } catch {
                 // 静默失败
@@ -134,7 +89,7 @@ class OnlineWallpaperViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Wallpaper Actions
+    // MARK: - 壁纸操作
     func handleWallpaperAction(_ wallpaper: OnlineWallpaper) {
         if isWallpaperDownloaded(wallpaper) {
             applyWallpaper(wallpaper)
@@ -143,15 +98,14 @@ class OnlineWallpaperViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Download Management
+    // MARK: - 下载队列管理
     private func addToDownloadQueue(_ wallpaper: OnlineWallpaper) {
-        guard !downloadQueue.contains(where: { $0.url == wallpaper.url }) else {
-            showError("已在下载队列中", duration: 2)
+        guard !downloadQueue.contains(where: { $0.id == wallpaper.id }) else {
             return
         }
 
         downloadQueue.append(wallpaper)
-        showError("已添加到下载队列 (\(downloadQueue.count))", duration: 2)
+        downloadingIds.insert(wallpaper.id)  // 标记为下载中
 
         if !isDownloading {
             processDownloadQueue()
@@ -166,6 +120,7 @@ class OnlineWallpaperViewModel: ObservableObject {
 
         Task {
             await downloadWallpaper(wallpaper)
+            downloadingIds.remove(wallpaper.id)  // 下载完成，移除标记
             isDownloading = false
 
             if !downloadQueue.isEmpty {
@@ -176,14 +131,11 @@ class OnlineWallpaperViewModel: ObservableObject {
 
     private func downloadWallpaper(_ wallpaper: OnlineWallpaper) async {
         do {
-            errorMessage = "正在获取下载链接... (剩余: \(downloadQueue.count))"
-            let downloadURLString = try await manager.getDownloadURL(for: wallpaper)
-
-            guard let url = URL(string: downloadURLString) else {
-                throw WallpaperError.downloadURLNotFound
+            // 直接使用 API 返回的 videoUrl
+            guard let url = URL(string: wallpaper.videoUrl) else {
+                throw APIError.invalidURL
             }
 
-            errorMessage = "正在下载 \(wallpaper.title)... (剩余: \(downloadQueue.count))"
             let (tempFileURL, _) = try await URLSession.shared.download(from: url)
 
             let fileManager = FileManager.default
@@ -197,9 +149,7 @@ class OnlineWallpaperViewModel: ObservableObject {
 
             try fileManager.moveItem(at: tempFileURL, to: destinationURL)
 
-            showError("下载成功 ✓ (剩余: \(downloadQueue.count))", duration: 2)
-
-            // 刷新本地壁纸列表
+            // 下载成功，刷新本地壁纸列表
             NotificationCenter.default.post(name: NSNotification.Name("RefreshLocalWallpapers"), object: nil)
 
         } catch {
@@ -221,8 +171,8 @@ class OnlineWallpaperViewModel: ObservableObject {
     }
 
     private func getFileName(for wallpaper: OnlineWallpaper) -> String {
-        let fileName = wallpaper.url.split(separator: "/").last.map(String.init) ?? wallpaper.id
-        return fileName.replacingOccurrences(of: "[^a-zA-Z0-9-]", with: "_", options: .regularExpression)
+        // 使用 API 返回的 id 作为文件名
+        return wallpaper.id
     }
 
     private func applyWallpaper(_ wallpaper: OnlineWallpaper) {
