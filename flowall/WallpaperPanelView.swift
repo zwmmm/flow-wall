@@ -111,7 +111,7 @@ struct WallpaperPanelView: View {
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 18)
-        .background(Color(NSColor.windowBackgroundColor))
+        .background(Color.clear)  // 透明背景,适配刘海屏
     }
 
     // MARK: - Tab栏
@@ -500,7 +500,7 @@ class VideoAutoPlayView: NSView {
     }
 }
 
-// MARK: - WebM 视频播放器 (支持 webm 格式)
+// MARK: - WebM 视频播放器 (支持 webm 格式 + 缓存)
 
 struct WebMVideoPlayer: NSViewRepresentable {
     let url: URL
@@ -512,6 +512,25 @@ struct WebMVideoPlayer: NSViewRepresentable {
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
         webView.navigationDelegate = context.coordinator
+
+        // 检查缓存并获取实际 URL
+        let videoURLString = url.absoluteString
+        let actualURL: URL
+
+        if let cachedURL = VideoFileManager.getCachedPreviewURL(for: videoURLString) {
+            // 使用缓存的视频
+            actualURL = cachedURL
+            print("📦 使用缓存的预览视频: \(videoURLString)")
+        } else {
+            // 使用在线视频,并在后台下载缓存
+            actualURL = url
+            print("🌐 加载在线预览视频: \(videoURLString)")
+
+            // 异步下载并缓存视频
+            Task {
+                await cachePreviewVideo(url: url)
+            }
+        }
 
         // 创建 HTML 页面嵌入视频
         let html = """
@@ -531,8 +550,8 @@ struct WebMVideoPlayer: NSViewRepresentable {
         </head>
         <body>
             <video id="videoPlayer" autoplay loop muted playsinline>
-                <source src="\(url.absoluteString)" type="video/webm">
-                <source src="\(url.absoluteString)" type="video/mp4">
+                <source src="\(actualURL.absoluteString)" type="video/webm">
+                <source src="\(actualURL.absoluteString)" type="video/mp4">
             </video>
             <script>
                 const video = document.getElementById('videoPlayer');
@@ -553,6 +572,23 @@ struct WebMVideoPlayer: NSViewRepresentable {
 
     func makeCoordinator() -> Coordinator {
         Coordinator(onReady: onReady)
+    }
+
+    // 缓存预览视频
+    private func cachePreviewVideo(url: URL) async {
+        let urlString = url.absoluteString
+
+        // 检查是否已缓存
+        if VideoFileManager.isPreviewCached(for: urlString) {
+            return
+        }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            VideoFileManager.cachePreviewVideo(for: urlString, data: data)
+        } catch {
+            print("❌ 预览视频缓存失败: \(error)")
+        }
     }
 
     class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {

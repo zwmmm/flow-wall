@@ -43,182 +43,106 @@ extension View {
     }
 }
 
-// MARK: - 优化的壁纸卡片(虚拟列表核心)
+// MARK: - 优化的壁纸卡片(只展示缩略图)
 struct OptimizedWallpaperCard: View {
     let wallpaper: OnlineWallpaper
     let isDownloaded: Bool
-    let isDownloading: Bool  // 新增:是否正在下载
-    let downloadProgress: Double?  // 新增:下载进度 (0-1)
+    let isDownloading: Bool
+    let downloadProgress: Double?
     let thumbnail: NSImage?
+    let onPreview: () -> Void
     let onAction: () -> Void
 
     @State private var isHovered = false
-    @State private var isInViewport = false
-    @State private var shouldLoadVideo = false  // 是否应该加载视频
-    @State private var isVideoReady = false  // 视频是否准备好显示
-    @State private var videoLoadTimer: Timer?  // 延迟加载计时器
-    @StateObject private var playerPool = VideoPlayerPool.shared
 
     // 计算高度,保持原视频宽高比
     private var cardHeight: CGFloat {
         guard let thumbnail = thumbnail else { return 140 }
         let imageSize = thumbnail.size
         let aspectRatio = imageSize.height / imageSize.width
-        // 卡片宽度 = 面板宽度 - 左右边距
-        let cardWidth: CGFloat = 280 - 15 * 2  // panelWidth - padding * 2
+        let cardWidth: CGFloat = 280 - 15 * 2
         return cardWidth * aspectRatio
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack(alignment: .center) {
-                // 缩略图或占位符 - 始终在底层
-                if let thumbnail = thumbnail {
-                    Image(nsImage: thumbnail)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)  // 保持宽高比
-                        .frame(width: 250, height: cardHeight)  // 固定宽度,高度自适应
-                        .clipped()
-                        .opacity(isVideoReady && shouldLoadVideo ? 0 : 1)  // 视频准备好后淡出
-                        .animation(.easeInOut(duration: 0.2), value: isVideoReady)
-                } else {
-                    // 骨架屏占位符
-                    ZStack {
-                        Color.gray.opacity(0.2)
-                        ProgressView()
-                            .scaleEffect(0.7)
-                    }
-                    .frame(height: 140)
-                }
-
-                // 视频层 - 准备好后才显示
-                if shouldLoadVideo && isHovered {
-                    WebMVideoPlayer(
-                        url: URL(string: wallpaper.previewUrl)!,
-                        onReady: { isVideoReady = true }  // 视频准备好的回调
-                    )
+        ZStack(alignment: .center) {
+            // 缩略图或占位符
+            if let thumbnail = thumbnail {
+                Image(nsImage: thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
                     .frame(width: 250, height: cardHeight)
-                    .opacity(isVideoReady ? 1 : 0)  // 准备好前透明
-                    .animation(.easeInOut(duration: 0.2), value: isVideoReady)
+                    .clipped()
+            } else {
+                ZStack {
+                    Color.gray.opacity(0.2)
+                    ProgressView()
+                        .scaleEffect(0.7)
                 }
+                .frame(height: 140)
+            }
 
-                // Hover 遮罩
-                if isHovered {
-                    ZStack {
-                        Color.black.opacity(0.3)
-                        Button(action: onAction) {
-                            if isDownloading {
-                                // 下载中:显示圆形进度条
-                                ZStack {
-                                    // 背景圆环
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 4)
-                                        .frame(width: 50, height: 50)
+            // Hover 遮罩
+            if isHovered {
+                ZStack {
+                    Color.black.opacity(0.4)
 
-                                    // 进度圆环
-                                    Circle()
-                                        .trim(from: 0, to: downloadProgress ?? 0)
-                                        .stroke(
-                                            Color.white,
-                                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                                        )
-                                        .frame(width: 50, height: 50)
-                                        .rotationEffect(.degrees(-90))
+                    if isDownloading {
+                        // 下载中:显示圆形进度条
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 4)
+                                .frame(width: 50, height: 50)
 
-                                    // 进度百分比
-                                    Text("\(Int((downloadProgress ?? 0) * 100))%")
-                                        .font(.system(size: 13, weight: .semibold))
-                                        .foregroundColor(.white)
-                                }
-                            } else if isDownloaded {
-                                // 已下载:显示播放图标
-                                Image(systemName: "play.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.white)
-                            } else {
-                                // 未下载:显示下载图标
-                                Image(systemName: "arrow.down.circle.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.white)
-                            }
+                            Circle()
+                                .trim(from: 0, to: downloadProgress ?? 0)
+                                .stroke(
+                                    Color.white,
+                                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                                )
+                                .frame(width: 50, height: 50)
+                                .rotationEffect(.degrees(-90))
+
+                            Text("\(Int((downloadProgress ?? 0) * 100))%")
+                                .font(.system(size: 13, weight: .semibold))
+                                .foregroundColor(.white)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(isDownloading)  // 下载中禁用按钮
+                    } else {
+                        HStack(spacing: 30) {
+                            // 预览按钮
+                            Button(action: onPreview) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: "play.circle.fill")
+                                        .font(.system(size: 36))
+                                        .foregroundColor(.white)
+                                    Text("预览")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.white.opacity(0.9))
+                                }
+                            }
+                            .buttonStyle(.plain)
+
+                            // 下载/应用按钮
+                            Button(action: onAction) {
+                                VStack(spacing: 4) {
+                                    Image(systemName: isDownloaded ? "checkmark.circle.fill" : "arrow.down.circle.fill")
+                                        .font(.system(size: 36))
+                                        .foregroundColor(.white)
+                                    Text(isDownloaded ? "应用" : "下载")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.white.opacity(0.9))
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
                     }
                 }
             }
-            .frame(height: cardHeight)  // 使用动态计算的高度
-            .cornerRadius(8)
-            .onAppear {
-                updateViewportStatus(geometry: geometry)
-            }
-            .onDisappear {
-                cleanupVideo()
-            }
-            .onChange(of: geometry.frame(in: .global)) { _, _ in
-                updateViewportStatus(geometry: geometry)
-            }
-            .onChange(of: isHovered) { _, newValue in
-                handleHoverChange(newValue)
-            }
-            .onHover { hovering in
-                isHovered = hovering
-            }
-            .onTapGesture {
-                onAction()
-            }
         }
-        .frame(height: cardHeight)  // 外层也使用动态高度
-    }
-
-    // 处理 hover 变化
-    private func handleHoverChange(_ isHovering: Bool) {
-        if isHovering && isInViewport {
-            // 开始 hover:延迟加载视频(避免快速划过时加载)
-            videoLoadTimer?.invalidate()
-            videoLoadTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                if isHovered && isInViewport && playerPool.canActivatePlayer() {
-                    playerPool.activatePlayer()
-                    withAnimation(.easeInOut(duration: 0.3)) {
-                        shouldLoadVideo = true
-                    }
-                }
-            }
-        } else {
-            // 结束 hover:立即停止视频
-            videoLoadTimer?.invalidate()
-            if shouldLoadVideo {
-                cleanupVideo()
-            }
-        }
-    }
-
-    // 清理视频资源
-    private func cleanupVideo() {
-        videoLoadTimer?.invalidate()
-        videoLoadTimer = nil
-        if shouldLoadVideo {
-            playerPool.deactivatePlayer()
-            shouldLoadVideo = false
-            isVideoReady = false  // 重置视频准备状态
-        }
-    }
-
-    // 可视区域检测
-    private func updateViewportStatus(geometry: GeometryProxy) {
-        let frame = geometry.frame(in: .global)
-        let panelHeight: CGFloat = 620
-        let buffer: CGFloat = 150  // 预加载缓冲区
-
-        let isVisible = frame.minY < panelHeight + buffer && frame.maxY > -buffer
-
-        if isVisible != isInViewport {
-            isInViewport = isVisible
-
-            // 离开可视区域时清理资源
-            if !isVisible {
-                cleanupVideo()
-            }
+        .frame(height: cardHeight)
+        .cornerRadius(8)
+        .onHover { hovering in
+            isHovered = hovering
         }
     }
 }
@@ -235,13 +159,10 @@ struct OnlineWallpaperListView: View {
 
             // 壁纸列表或空状态或加载状态
             if viewModel.isLoading && viewModel.wallpapers.isEmpty {
-                // 首次加载状态
                 loadingView
             } else if viewModel.wallpapers.isEmpty && !viewModel.isLoading {
-                // 空状态
                 emptyStateView
             } else {
-                // 壁纸列表
                 wallpaperList
             }
         }
@@ -249,11 +170,17 @@ struct OnlineWallpaperListView: View {
             errorOverlay
         }
         .onAppear {
-            // 首次进入时加载默认数据
             if viewModel.wallpapers.isEmpty && !viewModel.isLoading {
                 Task {
                     await viewModel.loadMore()
                 }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("HandleOnlineWallpaperAction"))) { notification in
+            if let userInfo = notification.userInfo,
+               let wallpaperId = userInfo["wallpaperId"] as? String,
+               let wallpaper = viewModel.wallpapers.first(where: { $0.id == wallpaperId }) {
+                viewModel.handleWallpaperAction(wallpaper)
             }
         }
     }
@@ -271,6 +198,7 @@ struct OnlineWallpaperListView: View {
                 .onSubmit {
                     viewModel.performSearch(query: searchText)
                 }
+                .focusable(false)
 
             if !searchText.isEmpty {
                 Button(action: {
@@ -312,12 +240,15 @@ struct OnlineWallpaperListView: View {
                         isDownloading: viewModel.downloadingIds.contains(wallpaper.id),
                         downloadProgress: viewModel.downloadProgress[wallpaper.id],
                         thumbnail: viewModel.thumbnails[wallpaper.id],
+                        onPreview: {
+                            openPreviewWindow(for: wallpaper)
+                        },
                         onAction: {
                             viewModel.handleWallpaperAction(wallpaper)
                         }
                     )
                     .onAppear {
-                        // 加载缩略图（备用）
+                        // 加载缩略图
                         viewModel.loadThumbnail(for: wallpaper)
 
                         // 触底加载
@@ -429,6 +360,21 @@ struct OnlineWallpaperListView: View {
         } else {
             return Color.red.opacity(0.9)
         }
+    }
+
+    private func openPreviewWindow(for wallpaper: OnlineWallpaper) {
+        let isDownloaded = viewModel.isWallpaperDownloaded(wallpaper)
+        let buttonTitle = isDownloaded ? "应用壁纸" : "下载"
+
+        NotificationCenter.default.post(
+            name: NSNotification.Name("PreviewOnlineWallpaper"),
+            object: nil,
+            userInfo: [
+                "previewUrl": wallpaper.previewUrl,
+                "buttonTitle": buttonTitle,
+                "wallpaperId": wallpaper.id
+            ]
+        )
     }
 }
 

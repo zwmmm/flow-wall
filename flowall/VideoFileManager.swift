@@ -169,4 +169,82 @@ class VideoFileManager {
         try? fileManager.removeItem(at: thumbnailCacheURL)
         ensureThumbnailCacheDirectoryExists()
     }
+
+    // MARK: - 预览视频缓存管理
+
+    /// 预览视频缓存目录
+    private static let previewCacheURL: URL = {
+        let cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+        return cacheDir.appendingPathComponent("flowall_preview_cache")
+    }()
+
+    /// 确保预览视频缓存目录存在
+    private static func ensurePreviewCacheDirectoryExists() {
+        let fileManager = FileManager.default
+        if !fileManager.fileExists(atPath: previewCacheURL.path) {
+            try? fileManager.createDirectory(
+                at: previewCacheURL,
+                withIntermediateDirectories: true,
+                attributes: nil
+            )
+        }
+    }
+
+    /// 获取预览视频的缓存路径
+    static func getPreviewCachePath(for previewURL: String) -> URL {
+        let fileName = "\(previewURL.hashValue).webm"
+        return previewCacheURL.appendingPathComponent(fileName)
+    }
+
+    /// 检查预览视频是否已缓存
+    static func isPreviewCached(for previewURL: String) -> Bool {
+        let cachePath = getPreviewCachePath(for: previewURL)
+        return FileManager.default.fileExists(atPath: cachePath.path)
+    }
+
+    /// 获取缓存的预览视频 URL (如果存在)
+    static func getCachedPreviewURL(for previewURL: String) -> URL? {
+        let cachePath = getPreviewCachePath(for: previewURL)
+        if FileManager.default.fileExists(atPath: cachePath.path) {
+            return cachePath
+        }
+        return nil
+    }
+
+    /// 缓存预览视频
+    /// - Parameters:
+    ///   - previewURL: 在线预览视频 URL
+    ///   - data: 视频数据
+    static func cachePreviewVideo(for previewURL: String, data: Data) {
+        ensurePreviewCacheDirectoryExists()
+        let cachePath = getPreviewCachePath(for: previewURL)
+        try? data.write(to: cachePath)
+        print("✅ 预览视频已缓存: \(previewURL)")
+    }
+
+    /// 清除预览视频缓存
+    static func clearPreviewCache() {
+        let fileManager = FileManager.default
+        try? fileManager.removeItem(at: previewCacheURL)
+        ensurePreviewCacheDirectoryExists()
+        print("🗑️ 预览视频缓存已清除")
+    }
+
+    /// 获取预览视频缓存大小
+    static func getPreviewCacheSize() -> Int64 {
+        let fileManager = FileManager.default
+        guard let enumerator = fileManager.enumerator(at: previewCacheURL, includingPropertiesForKeys: [.fileSizeKey]) else {
+            return 0
+        }
+
+        var totalSize: Int64 = 0
+        for case let fileURL as URL in enumerator {
+            guard let resourceValues = try? fileURL.resourceValues(forKeys: [.fileSizeKey]),
+                  let fileSize = resourceValues.fileSize else {
+                continue
+            }
+            totalSize += Int64(fileSize)
+        }
+        return totalSize
+    }
 }

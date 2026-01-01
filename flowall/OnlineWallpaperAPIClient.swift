@@ -30,6 +30,7 @@ class OnlineWallpaperAPIClient: ObservableObject {
 
         if let search = search, !search.isEmpty {
             queryItems.append(URLQueryItem(name: "search", value: search))
+            print("🌐 API 请求 URL 包含搜索词: '\(search)'")
         }
 
         components.queryItems = queryItems
@@ -37,6 +38,8 @@ class OnlineWallpaperAPIClient: ObservableObject {
         guard let url = components.url else {
             throw APIError.invalidURL
         }
+
+        print("🌐 发送 API 请求: \(url.absoluteString)")
 
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -49,6 +52,8 @@ class OnlineWallpaperAPIClient: ObservableObject {
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw APIError.invalidResponse
             }
+
+            print("🌐 API 响应状态码: \(httpResponse.statusCode)")
 
             guard (200...299).contains(httpResponse.statusCode) else {
                 throw APIError.httpError(statusCode: httpResponse.statusCode)

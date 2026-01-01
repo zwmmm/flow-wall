@@ -6,7 +6,8 @@ import AVFoundation
 struct LocalWallpaperCard: View {
     let videoURL: URL
     let thumbnail: NSImage?
-    let onAction: () -> Void
+    let onPreview: () -> Void
+    let onApply: () -> Void
 
     @State private var isHovered = false
 
@@ -15,40 +16,60 @@ struct LocalWallpaperCard: View {
         guard let thumbnail = thumbnail else { return 140 }
         let imageSize = thumbnail.size
         let aspectRatio = imageSize.height / imageSize.width
-        // 卡片宽度 = 面板宽度 - 左右边距
-        let cardWidth: CGFloat = 280 - 15 * 2  // panelWidth - padding * 2
+        let cardWidth: CGFloat = 280 - 15 * 2
         return cardWidth * aspectRatio
     }
 
     var body: some View {
         ZStack(alignment: .center) {
-            // 显示缩略图或视频
+            // 缩略图
             if let thumbnail = thumbnail {
                 Image(nsImage: thumbnail)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)  // 保持宽高比
-                    .frame(width: 250, height: cardHeight)  // 固定宽度,高度自适应
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 250, height: cardHeight)
                     .clipped()
             } else {
                 Color.gray.opacity(0.2)
                     .frame(height: 140)
             }
 
-            // 悬停时显示播放按钮
+            // 悬停遮罩
             if isHovered {
                 ZStack {
-                    Color.black.opacity(0.3)
+                    Color.black.opacity(0.4)
 
-                    Button(action: onAction) {
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 40))
-                            .foregroundColor(.white)
+                    HStack(spacing: 30) {
+                        // 预览按钮
+                        Button(action: onPreview) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "play.circle.fill")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(.white)
+                                Text("预览")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                        }
+                        .buttonStyle(.plain)
+
+                        // 应用按钮
+                        Button(action: onApply) {
+                            VStack(spacing: 4) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 36))
+                                    .foregroundColor(.white)
+                                Text("应用")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.white.opacity(0.9))
+                            }
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
-        .frame(height: cardHeight)  // 使用动态计算的高度
+        .frame(height: cardHeight)
         .cornerRadius(8)
         .onHover { hovering in
             isHovered = hovering
@@ -61,7 +82,7 @@ struct LocalWallpaperListView: View {
     @State private var localWallpapers: [URL] = []
     @State private var thumbnails: [String: NSImage] = [:]
     @State private var isLoading = false
-    @State private var isInitialLoad = true  // 标记是否首次加载
+    @State private var isInitialLoad = true
 
     var onClose: () -> Void
 
@@ -69,7 +90,6 @@ struct LocalWallpaperListView: View {
         VStack(spacing: 0) {
             // 壁纸列表
             if isLoading && isInitialLoad {
-                // 只在首次加载时显示 loading
                 loadingView
             } else if localWallpapers.isEmpty && !isLoading {
                 emptyView
@@ -80,11 +100,14 @@ struct LocalWallpaperListView: View {
                             LocalWallpaperCard(
                                 videoURL: wallpaper,
                                 thumbnail: thumbnails[wallpaper.path],
-                                onAction: {
+                                onPreview: {
+                                    openPreviewWindow(for: wallpaper)
+                                },
+                                onApply: {
                                     applyWallpaper(wallpaper)
                                 }
                             )
-                            .id(wallpaper.path)  // 添加稳定的 ID,防止重复渲染
+                            .id(wallpaper.path)
                         }
                     }
                     .padding(.horizontal, 15)
@@ -195,5 +218,13 @@ struct LocalWallpaperListView: View {
             userInfo: ["path": wallpaper.path]
         )
         onClose()
+    }
+
+    private func openPreviewWindow(for wallpaper: URL) {
+        NotificationCenter.default.post(
+            name: NSNotification.Name("PreviewLocalWallpaper"),
+            object: nil,
+            userInfo: ["url": wallpaper.absoluteString]
+        )
     }
 }

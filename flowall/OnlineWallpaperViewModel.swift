@@ -24,14 +24,15 @@ class OnlineWallpaperViewModel: ObservableObject {
     func performSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        print("🔍 开始搜索: '\(trimmedQuery)'")
+
         // 重置所有状态
         currentSearch = trimmedQuery
         currentPage = 0
         totalPages = 0
         wallpapers.removeAll()
 
-        // 立即显示 loading 状态
-        isLoading = true
+        // 不在这里设置 isLoading,让 loadMore() 自己管理
 
         // 开始加载新搜索结果
         Task {
@@ -47,7 +48,7 @@ class OnlineWallpaperViewModel: ObservableObject {
             return
         }
 
-        print("📥 开始 loadMore, 当前壁纸数: \(wallpapers.count)")
+        print("📥 开始 loadMore, 当前壁纸数: \(wallpapers.count), 搜索词: '\(currentSearch)'")
         isLoading = true
 
         do {
@@ -57,6 +58,8 @@ class OnlineWallpaperViewModel: ObservableObject {
                 limit: 20,
                 search: currentSearch.isEmpty ? nil : currentSearch
             )
+
+            print("✅ API 响应成功: 返回 \(response.data.items.count) 项")
 
             // 追加新数据
             wallpapers.append(contentsOf: response.data.items)

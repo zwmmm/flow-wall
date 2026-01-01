@@ -58,7 +58,7 @@ enum AppConstants {
         static let cardSpacing: CGFloat = 12
 
         /// 设置窗口宽度
-        static let settingsWidth: CGFloat = 500
+        static let settingsWidth: CGFloat = 420
         /// 设置窗口高度
         static let settingsHeight: CGFloat = 550
     }

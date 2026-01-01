@@ -5,6 +5,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemManager: StatusItemManager?
     var videoWallpaperManager: VideoWallpaperManager?
     private var settingsWindowController: SettingsWindowController?
+    private var previewWindowController: VideoPreviewWindowController?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         videoWallpaperManager = VideoWallpaperManager()
@@ -31,6 +32,22 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSNotification.Name("ApplyWallpaper"),
             object: nil
         )
+
+        // 监听本地壁纸预览通知
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleLocalPreview(_:)),
+            name: NSNotification.Name("PreviewLocalWallpaper"),
+            object: nil
+        )
+
+        // 监听在线壁纸预览通知
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleOnlinePreview(_:)),
+            name: NSNotification.Name("PreviewOnlineWallpaper"),
+            object: nil
+        )
     }
 
     @objc private func handleApplyWallpaper(_ notification: Notification) {
@@ -51,6 +68,79 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         settingsWindowController?.showWindow(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func handleLocalPreview(_ notification: Notification) {
+        print("[AppDelegate] 收到本地预览通知")
+        guard let userInfo = notification.userInfo,
+              let urlString = userInfo["url"] as? String,
+              let videoURL = URL(string: urlString) else {
+            print("[AppDelegate] 本地预览通知参数错误: \(notification.userInfo ?? [:])")
+            return
+        }
+
+        print("[AppDelegate] 打开本地预览: \(videoURL.lastPathComponent)")
+        let fileName = videoURL.lastPathComponent
+
+        previewWindowController = VideoPreviewWindowController(
+            videoURL: videoURL,
+            title: fileName
+        )
+
+        guard let window = previewWindowController?.window else {
+            print("[AppDelegate] ❌ 窗口创建失败")
+            return
+        }
+
+        print("[AppDelegate] ✓ 窗口已创建: \(window)")
+        print("[AppDelegate] 窗口可见性: \(window.isVisible)")
+        print("[AppDelegate] 窗口 frame: \(window.frame)")
+
+        previewWindowController?.showWindow(nil)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        print("[AppDelegate] showWindow 后窗口可见性: \(window.isVisible)")
+    }
+
+    @objc private func handleOnlinePreview(_ notification: Notification) {
+        print("[AppDelegate] 收到在线预览通知")
+        guard let userInfo = notification.userInfo,
+              let previewUrlString = userInfo["previewUrl"] as? String,
+              let previewURL = URL(string: previewUrlString) else {
+            print("[AppDelegate] 在线预览通知参数错误: \(notification.userInfo ?? [:])")
+            return
+        }
+
+        print("[AppDelegate] 打开在线预览")
+        print("[AppDelegate] 完整 URL: \(previewURL.absoluteString)")
+        print("[AppDelegate] URL Scheme: \(previewURL.scheme ?? "无")")
+        print("[AppDelegate] URL Host: \(previewURL.host ?? "无")")
+        print("[AppDelegate] URL Path: \(previewURL.path)")
+        print("[AppDelegate] 文件名: \(previewURL.lastPathComponent)")
+
+        let fileName = previewURL.lastPathComponent
+        let title = fileName.isEmpty ? "在线壁纸预览" : fileName
+
+        previewWindowController = VideoPreviewWindowController(
+            videoURL: previewURL,
+            title: title
+        )
+
+        guard let window = previewWindowController?.window else {
+            print("[AppDelegate] ❌ 窗口创建失败")
+            return
+        }
+
+        print("[AppDelegate] ✓ 窗口已创建: \(window)")
+        print("[AppDelegate] 窗口可见性: \(window.isVisible)")
+        print("[AppDelegate] 窗口 frame: \(window.frame)")
+
+        previewWindowController?.showWindow(nil)
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+
+        print("[AppDelegate] showWindow 后窗口可见性: \(window.isVisible)")
     }
 
     func applicationWillTerminate(_ notification: Notification) {

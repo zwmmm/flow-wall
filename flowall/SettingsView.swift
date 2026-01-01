@@ -48,8 +48,8 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             // 顶部 - 应用信息
             aboutSection
-                .padding(.top, 24)
-                .padding(.bottom, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 16)
 
             Divider()
 
@@ -85,28 +85,43 @@ struct SettingsView: View {
     // MARK: - 关于部分
 
     private var aboutSection: some View {
-        VStack(spacing: 8) {
-            // 应用图标 (使用系统图标作为占位)
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 48))
-                .foregroundColor(.accentColor)
-                .frame(width: 64, height: 64)
+        HStack(spacing: 16) {
+            Spacer()
 
-            // 应用名称
-            Text(AppVersion.appName)
-                .font(.system(size: 24, weight: .semibold))
+            // 应用图标 - 使用真实的 AppIcon
+            if let appIcon = NSImage(named: "AppIcon") {
+                Image(nsImage: appIcon)
+                    .resizable()
+                    .frame(width: 64, height: 64)
+                    .cornerRadius(12)
+            } else {
+                // 备用图标
+                Image(systemName: "photo.on.rectangle.angled")
+                    .font(.system(size: 40))
+                    .foregroundColor(.accentColor)
+                    .frame(width: 64, height: 64)
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+            }
 
-            // 版本号
-            Text(AppVersion.shortVersion)
-                .font(.system(size: 13))
-                .foregroundColor(.secondary)
+            // 应用名称和描述
+            VStack(alignment: .leading, spacing: 4) {
+                Text(AppVersion.appName)
+                    .font(.system(size: 22, weight: .semibold))
 
-            // 简介
-            Text(AppVersion.description)
-                .font(.system(size: 11))
-                .foregroundColor(.secondary)
-                .padding(.top, 4)
+                Text(AppVersion.description)
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+
+                Text(AppVersion.shortVersion)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .padding(.top, 2)
+            }
+
+            Spacer()
         }
+        .padding(.horizontal, 4)
     }
 
     // MARK: - 功能设置组
@@ -207,32 +222,29 @@ struct SettingsView: View {
                     .padding(.leading, 44)
 
                 LinkRow(
-                    icon: "star.circle",
-                    iconColor: .orange,
-                    title: "GitHub 仓库",
-                    subtitle: "查看项目源代码"
+                    icon: "link.circle",
+                    title: "在线地址",
+                    subtitle: "GitHub · Issues"
                 ) {
-                    Button(action: AppVersion.openGitHub) {
-                        Image(systemName: "arrow.up.forward")
-                            .font(.system(size: 11))
-                    }
-                    .buttonStyle(.plain)
-                }
+                    HStack(spacing: 10) {
+                        // GitHub 图标
+                        Button(action: AppVersion.openGitHub) {
+                            Image(systemName: "star.circle")
+                                .font(.system(size: 18))
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .help("打开 GitHub 仓库")
 
-                Divider()
-                    .padding(.leading, 44)
-
-                LinkRow(
-                    icon: "exclamationmark.bubble",
-                    iconColor: .blue,
-                    title: "问题反馈",
-                    subtitle: "报告 Bug 或提出建议"
-                ) {
-                    Button(action: AppVersion.openIssues) {
-                        Image(systemName: "arrow.up.forward")
-                            .font(.system(size: 11))
+                        // Issues 图标
+                        Button(action: AppVersion.openIssues) {
+                            Image(systemName: "exclamationmark.bubble")
+                                .font(.system(size: 18))
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                        .help("报告问题或提建议")
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .background(Color(NSColor.controlBackgroundColor))
@@ -329,20 +341,17 @@ struct SettingsView: View {
 
 struct SettingRow<Content: View>: View {
     let icon: String
-    var iconColor: Color = .secondary
     let title: String
     let subtitle: String
     let content: Content
 
     init(
         icon: String,
-        iconColor: Color = .secondary,
         title: String,
         subtitle: String,
         @ViewBuilder content: () -> Content
     ) {
         self.icon = icon
-        self.iconColor = iconColor
         self.title = title
         self.subtitle = subtitle
         self.content = content()
@@ -350,10 +359,10 @@ struct SettingRow<Content: View>: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            // 图标
+            // 图标 - 统一灰色
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundColor(iconColor)
+                .foregroundColor(.secondary)
                 .frame(width: 32, height: 32)
 
             // 文本
@@ -380,20 +389,17 @@ struct SettingRow<Content: View>: View {
 
 struct LinkRow<Content: View>: View {
     let icon: String
-    var iconColor: Color = .secondary
     let title: String
     let subtitle: String
     let content: Content
 
     init(
         icon: String,
-        iconColor: Color = .secondary,
         title: String,
         subtitle: String,
         @ViewBuilder content: () -> Content
     ) {
         self.icon = icon
-        self.iconColor = iconColor
         self.title = title
         self.subtitle = subtitle
         self.content = content()
@@ -401,10 +407,10 @@ struct LinkRow<Content: View>: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
-            // 图标
+            // 图标 - 统一灰色
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundColor(iconColor)
+                .foregroundColor(.secondary)
                 .frame(width: 32, height: 32)
 
             // 文本
