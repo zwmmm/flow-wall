@@ -56,5 +56,21 @@ enum AppConstants {
         static let cardPadding: CGFloat = 14
         /// 卡片间距
         static let cardSpacing: CGFloat = 12
+
+        /// 设置窗口宽度
+        static let settingsWidth: CGFloat = 500
+        /// 设置窗口高度
+        static let settingsHeight: CGFloat = 550
+    }
+
+    // MARK: - 外部链接
+
+    enum Links {
+        /// GitHub 仓库
+        static let github = "https://github.com/zwmmm/flow-wall"
+        /// Issues 反馈
+        static let issues = "https://github.com/zwmmm/flow-wall/issues"
+        /// 发布页面
+        static let releases = "https://github.com/zwmmm/flow-wall/releases"
     }
 }

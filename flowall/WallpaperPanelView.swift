@@ -120,14 +120,14 @@ struct WallpaperPanelView: View {
         HStack(spacing: 0) {
             Spacer()
 
-            TabButton(title: "本地", isSelected: selectedTab == 0) {
-                selectedTab = 0
+            TabButton(title: "壁纸库", isSelected: selectedTab == 1) {
+                selectedTab = 1
             }
 
             Spacer().frame(width: 40)
 
-            TabButton(title: "壁纸库", isSelected: selectedTab == 1) {
-                selectedTab = 1
+            TabButton(title: "本地", isSelected: selectedTab == 0) {
+                selectedTab = 0
             }
 
             Spacer()
@@ -504,12 +504,14 @@ class VideoAutoPlayView: NSView {
 
 struct WebMVideoPlayer: NSViewRepresentable {
     let url: URL
+    var onReady: (() -> Void)? = nil  // 视频准备好的回调
 
     func makeNSView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
         let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.navigationDelegate = context.coordinator
 
         // 创建 HTML 页面嵌入视频
         let html = """
@@ -528,10 +530,17 @@ struct WebMVideoPlayer: NSViewRepresentable {
             </style>
         </head>
         <body>
-            <video autoplay loop muted playsinline>
+            <video id="videoPlayer" autoplay loop muted playsinline>
                 <source src="\(url.absoluteString)" type="video/webm">
                 <source src="\(url.absoluteString)" type="video/mp4">
             </video>
+            <script>
+                const video = document.getElementById('videoPlayer');
+                // 视频可以播放时通知 Swift
+                video.addEventListener('canplay', function() {
+                    window.webkit.messageHandlers.videoReady.postMessage('ready');
+                });
+            </script>
         </body>
         </html>
         """
@@ -541,6 +550,32 @@ struct WebMVideoPlayer: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: WKWebView, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onReady: onReady)
+    }
+
+    class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
+        let onReady: (() -> Void)?
+
+        init(onReady: (() -> Void)?) {
+            self.onReady = onReady
+            super.init()
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "videoReady" {
+                DispatchQueue.main.async {
+                    self.onReady?()
+                }
+            }
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            // 注册消息处理器
+            webView.configuration.userContentController.add(self, name: "videoReady")
+        }
+    }
 }
 
 // MARK: - Preview

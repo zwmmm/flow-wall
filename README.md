@@ -1,27 +1,40 @@
-# flowall - macOS 动态壁纸应用
+# Flowall - macOS 动态壁纸应用
 
-一款简洁的 macOS 动态壁纸应用,支持视频壁纸播放,灵感来自 pap.er。
+<p align="center">
+  <img src="https://img.shields.io/badge/macOS-14.0+-blue" alt="macOS 14.0+">
+  <img src="https://img.shields.io/badge/Swift-5.9-orange" alt="Swift 5.9">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+</p>
 
-## 功能特性
+一款简洁优雅的 macOS 动态壁纸应用,支持视频壁纸播放,灵感来自 pap.er。
+
+## ✨ 功能特性
 
 ### 核心功能
-- ✅ 视频动态壁纸播放
-- ✅ 静态帧提取(空间切换时显示)
-- ✅ 多空间支持
-- ✅ 状态栏菜单控制
-- ✅ 可视化壁纸选择界面
-- ✅ 自动循环播放
-- ✅ 多屏幕独立壁纸支持
+- ✅ **视频动态壁纸** - 支持 mp4, mov, m4v, mkv 格式
+- ✅ **多屏幕支持** - 每个显示器独立管理壁纸
+- ✅ **空间切换优化** - 静态帧提取,切换流畅
+- ✅ **刘海屏适配** - 自动调整视频区域避开刘海
+- ✅ **自动循环播放** - 无缝循环,体验流畅
 
-### 新增功能 (v2.0)
-- ✅ **隐藏刘海屏**: 自动调整视频区域避开刘海屏
-- ✅ **随机换壁纸**: 一键随机选择壁纸
-- ✅ **自定义存储路径**: 支持自定义壁纸存储位置
-- ✅ **导入本地壁纸**: 批量导入视频文件
-- ✅ **同步所有桌面**: 自动同步壁纸到所有屏幕
-- ✅ **Dock 显示控制**: 切换应用在 Dock 中的可见性
-- ✅ **登录时启动**: 开机自动启动
-- ✅ **语言选择**: 支持简体中文和英文
+### 用户体验
+- ✅ **美观的设置界面** - 现代化 SwiftUI 设计
+- ✅ **状态栏控制** - 便捷的菜单栏操作
+- ✅ **登录时启动** - 开机自动运行
+- ✅ **随机换壁纸** - 一键随机选择
+- ✅ **在线壁纸库** - 丰富的在线资源
+
+### 管理功能
+- ✅ **自定义存储路径** - 灵活的文件管理
+- ✅ **批量导入** - 快速添加本地视频
+- ✅ **缩略图缓存** - 快速预览加载
+- ✅ **同步所有桌面** - 一键同步所有屏幕
+
+### 开发者友好
+- ✅ **版本管理系统** - 集中式版本信息管理
+- ✅ **更新检查** - 基于 GitHub Releases API
+- ✅ **清晰的代码架构** - 遵循 SOLID 原则
+- ✅ **完善的文档** - 详细的集成指南
 
 ## 系统要求
 
@@ -61,9 +74,15 @@ cp /path/to/your/video.mp4 ~/Livewall/
 
 ### 打开设置
 
-1. 点击状态栏的 "pap.er" 文本
-2. 选择"设置"(快捷键: ⌘,)
-3. 在设置界面中配置各项功能
+1. 点击状态栏的应用图标
+2. 选择右键菜单"设置"
+3. 查看和配置各项功能
+
+**设置界面包含:**
+- 📱 **应用信息** - 查看版本号和应用说明
+- ⚙️ **功能配置** - 刘海屏隐藏、文件夹管理、启动设置
+- 🔗 **支持链接** - GitHub、问题反馈、检查更新
+- 📊 **版权信息** - 底部版权声明
 
 ### 快捷键
 
@@ -76,15 +95,20 @@ cp /path/to/your/video.mp4 ~/Livewall/
 
 ```
 flowall/
-├── flowallApp.swift                    # 应用入口
-├── AppDelegate.swift                    # 应用代理,核心协调器
-├── StatusItemManager.swift              # 状态栏菜单
-├── SettingsView.swift                   # 设置界面(NEW)
-├── WallpaperSelectionView.swift         # 壁纸选择界面(SwiftUI)
-├── VideoWallpaperManager.swift          # 动态视频壁纸管理
-├── VideoFileManager.swift               # 文件管理
-├── VideoProcessor.swift                 # 视频处理
-└── WallpaperManager.swift               # 静态壁纸管理
+├── FlowWallApp.swift                 # 应用入口
+├── AppDelegate.swift                 # 应用代理,核心协调器
+├── AppConstants.swift                # 应用常量统一管理
+├── AppVersion.swift                  # 版本管理和更新检查(NEW)
+├── StatusItemManager.swift           # 状态栏菜单管理
+├── SettingsView.swift                # 设置界面(重构优化)
+├── WallpaperPanelView.swift          # 壁纸面板视图
+├── LocalWallpaperListView.swift      # 本地壁纸列表
+├── OnlineWallpaperListView.swift     # 在线壁纸列表
+├── VideoWallpaperManager.swift       # 动态视频壁纸管理
+├── VideoFileManager.swift            # 文件管理和缓存
+├── VideoPlayerPool.swift             # 视频播放器池
+├── OnlineWallpaperAPIClient.swift    # 在线 API 客户端
+└── WallpaperAPIModels.swift          # API 数据模型
 ```
 
 ## 核心技术
@@ -121,34 +145,27 @@ flowall/
 ## 设置功能详解
 
 ### 1. 隐藏刘海屏
-针对带刘海的 MacBook Pro 机型,自动调整视频显示区域避开刘海部分。
+针对带刘海的 MacBook Pro 机型,自动调整视频显示区域避开刘海部分,提供更好的视觉体验。
 
-### 2. 随机换壁纸
-从视频库中随机选择一个视频作为壁纸,适合经常更换壁纸的用户。
+### 2. 壁纸文件夹
+- **默认路径**: `~/Livewall`
+- **自定义路径**: 可更改到任意目录
+- **快速访问**: 一键在访达中打开文件夹
 
-### 3. 壁纸存储位置
-- 默认路径: `~/Livewall`
-- 可自定义到任意目录
-- 实时显示库大小
+### 3. 登录时启动
+开启后应用会在开机时自动启动,无需手动打开。使用 macOS 13+ 的现代登录项 API。
 
-### 4. 导入本地壁纸
-- 支持多选视频文件
-- 自动复制到壁纸库
-- 支持格式: mp4, mov, m4v, mkv
+### 4. 检查更新
+- **手动检查**: 点击"检查"按钮
+- **自动通知**: 发现新版本时弹窗提示
+- **版本比较**: 基于语义化版本号智能比较
+- **一键跳转**: 自动打开 GitHub Release 页面下载
 
-### 5. 同步壁纸到所有桌面
-开启后,选择的壁纸会自动应用到所有连接的显示器。
+### 5. GitHub 仓库
+查看项目源代码、Star 支持项目、了解最新开发动态。
 
-### 6. 在 Dock 显示图标
-- 关闭: 纯菜单栏应用模式
-- 开启: 在 Dock 中显示图标
-
-### 7. 登录时启动
-开机自动启动应用,无需手动打开。
-
-### 8. 语言
-- 简体中文
-- English
+### 6. 问题反馈
+通过 GitHub Issues 报告 Bug、提出功能建议或改进意见。我们欢迎所有反馈!
 
 ## 开发说明
 
@@ -178,7 +195,27 @@ flowall/
 
 ## 更新日志
 
-查看 [CHANGELOG.md](CHANGELOG.md) 了解详细更新历史。
+### v1.0.0 (2026-01-01)
+
+**新增功能:**
+- ✨ 全新设计的设置界面
+- ✨ 版本管理系统 (AppVersion)
+- ✨ 手动检查更新功能
+- ✨ GitHub 和 Issues 快速链接
+- ✨ 完善的关于页面
+
+**优化改进:**
+- 🎨 更专业的 UI 设计
+- 📝 重构设置页面代码
+- 🔧 优化常量管理
+- 📚 新增 Sparkle 集成文档
+
+**代码质量:**
+- ♻️ 遵循 SOLID 原则
+- 📖 改进代码注释
+- 🏗️ 更清晰的架构
+
+查看完整更新历史: [CHANGELOG.md](CHANGELOG.md)
 
 ## 许可证
 
@@ -188,6 +225,23 @@ MIT License
 
 - 参考项目: [thusvill/LiveWallpaperMacOS](https://github.com/thusvill/LiveWallpaperMacOS)
 - UI 设计灵感: [pap.er](https://paper.meiyuan.in/)
+
+## 支持项目
+
+如果你喜欢这个项目,请考虑:
+
+- ⭐ 给项目点个 Star
+- 🐛 [报告 Bug](https://github.com/zwmmm/flow-wall/issues)
+- 💡 [提出新功能](https://github.com/zwmmm/flow-wall/issues)
+- 🔀 提交 Pull Request
+
+## 路线图
+
+- [ ] 集成 Sparkle 自动更新框架(详见 [SPARKLE_INTEGRATION.md](SPARKLE_INTEGRATION.md))
+- [ ] 支持更多视频格式
+- [ ] 壁纸效果(模糊、亮度调节等)
+- [ ] 预设壁纸包
+- [ ] 社区壁纸分享
 
 ## 截图
 

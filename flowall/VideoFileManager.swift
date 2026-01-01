@@ -3,7 +3,8 @@ import AppKit
 import AVFoundation
 
 /// 视频文件管理器
-/// 负责管理壁纸视频文件
+/// 职责:管理壁纸视频文件的读取、缓存和处理
+/// 遵循 SOLID 原则:单一职责(SRP) - 专注于文件管理
 class VideoFileManager {
 
     // MARK: - 缩略图缓存
@@ -167,17 +168,5 @@ class VideoFileManager {
         let fileManager = FileManager.default
         try? fileManager.removeItem(at: thumbnailCacheURL)
         ensureThumbnailCacheDirectoryExists()
-    }
-
-    /// 获取视频时长
-    /// - Parameter url: 视频 URL
-    /// - Returns: 时长（秒）
-    static func getVideoDuration(for url: URL) -> Double? {
-        let asset = AVURLAsset(url: url)
-        let duration = asset.duration
-        guard duration.isValid && !duration.isIndefinite else {
-            return nil
-        }
-        return CMTimeGetSeconds(duration)
     }
 }

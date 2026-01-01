@@ -14,14 +14,16 @@
 		AA0013 /* StatusItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0012 /* StatusItemManager.swift */; };
 		AA0017 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0016 /* SettingsView.swift */; };
 		AA0019 /* WallpaperPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0018 /* WallpaperPanelView.swift */; };
-		AA0021 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0020 /* Assets.xcassets */; };
 		AA3D13EE2F04EAF000D06F4E /* FlowWallApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */; };
 		AA3D13EF2F04EAF000D06F4E /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */; };
 		AA3D13F22F05005300D06F4E /* OnlineWallpaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */; };
-		AA3D13F32F05005300D06F4E /* OnlineWallpaperManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */; };
 		AA3D13F42F050E8D00D06F4E /* OnlineWallpaperViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */; };
 		AA3D13F52F050E8E00D06F4E /* LocalWallpaperListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */; };
-		AA3D13F72F050FE200D06F4E /* WallpaperDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */; };
+		B08BF8F82F06B90C004B0E4C /* AppVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08BF8F62F06B90C004B0E4C /* AppVersion.swift */; };
+		B08BF8F92F06B90C004B0E4C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08BF8F72F06B90C004B0E4C /* Assets.xcassets */; };
+		B08BF8FD2F06B93F004B0E4C /* WallpaperAPIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08BF8FA2F06B93F004B0E4C /* WallpaperAPIModels.swift */; };
+		B08BF8FE2F06B93F004B0E4C /* OnlineWallpaperAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08BF8FB2F06B93F004B0E4C /* OnlineWallpaperAPIClient.swift */; };
+		B08BF8FF2F06B93F004B0E4C /* VideoPlayerPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08BF8FC2F06B93F004B0E4C /* VideoPlayerPool.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,16 +34,18 @@
 		AA0012 /* StatusItemManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItemManager.swift; sourceTree = "<group>"; };
 		AA0016 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AA0018 /* WallpaperPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperPanelView.swift; sourceTree = "<group>"; };
-		AA0020 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0022 /* flowall.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = flowall.entitlements; sourceTree = "<group>"; };
 		AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlowWallApp.swift; sourceTree = "<group>"; };
 		AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperListView.swift; sourceTree = "<group>"; };
-		AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperManager.swift; sourceTree = "<group>"; };
 		AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperViewModel.swift; sourceTree = "<group>"; };
 		AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalWallpaperListView.swift; sourceTree = "<group>"; };
-		AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WallpaperDatabase.swift; sourceTree = "<group>"; };
 		AACCC0 /* flowall.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowall.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B08BF8F62F06B90C004B0E4C /* AppVersion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppVersion.swift; sourceTree = "<group>"; };
+		B08BF8F72F06B90C004B0E4C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B08BF8FA2F06B93F004B0E4C /* WallpaperAPIModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WallpaperAPIModels.swift; sourceTree = "<group>"; };
+		B08BF8FB2F06B93F004B0E4C /* OnlineWallpaperAPIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnlineWallpaperAPIClient.swift; sourceTree = "<group>"; };
+		B08BF8FC2F06B93F004B0E4C /* VideoPlayerPool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoPlayerPool.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,10 +70,13 @@
 		AABB01 /* flowall */ = {
 			isa = PBXGroup;
 			children = (
-				AA3D13F62F050FE200D06F4E /* WallpaperDatabase.swift */,
+				B08BF8FB2F06B93F004B0E4C /* OnlineWallpaperAPIClient.swift */,
+				B08BF8FC2F06B93F004B0E4C /* VideoPlayerPool.swift */,
+				B08BF8FA2F06B93F004B0E4C /* WallpaperAPIModels.swift */,
+				B08BF8F62F06B90C004B0E4C /* AppVersion.swift */,
+				B08BF8F72F06B90C004B0E4C /* Assets.xcassets */,
 				AA3D13F42F050E8E00D06F4E /* LocalWallpaperListView.swift */,
 				AA3D13F02F05005300D06F4E /* OnlineWallpaperListView.swift */,
-				AA3D13F12F05005300D06F4E /* OnlineWallpaperManager.swift */,
 				AA3D13F32F050E8D00D06F4E /* OnlineWallpaperViewModel.swift */,
 				AA3D13EB2F04EAF000D06F4E /* AppConstants.swift */,
 				AA3D13ED2F04EAF000D06F4E /* FlowWallApp.swift */,
@@ -80,7 +87,6 @@
 				AA0012 /* StatusItemManager.swift */,
 				AA0016 /* SettingsView.swift */,
 				AA0018 /* WallpaperPanelView.swift */,
-				AA0020 /* Assets.xcassets */,
 				AA0022 /* flowall.entitlements */,
 			);
 			path = flowall;
@@ -147,7 +153,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AA0021 /* Assets.xcassets in Resources */,
+				B08BF8F92F06B90C004B0E4C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,14 +169,16 @@
 				AA3D13EF2F04EAF000D06F4E /* AppConstants.swift in Sources */,
 				AA0001 /* FlowWallApp.swift in Sources */,
 				AA3D13F22F05005300D06F4E /* OnlineWallpaperListView.swift in Sources */,
-				AA3D13F32F05005300D06F4E /* OnlineWallpaperManager.swift in Sources */,
+				B08BF8FD2F06B93F004B0E4C /* WallpaperAPIModels.swift in Sources */,
+				B08BF8FE2F06B93F004B0E4C /* OnlineWallpaperAPIClient.swift in Sources */,
+				B08BF8F82F06B90C004B0E4C /* AppVersion.swift in Sources */,
 				AA3D13F42F050E8D00D06F4E /* OnlineWallpaperViewModel.swift in Sources */,
 				AA0003 /* AppDelegate.swift in Sources */,
 				AA0007 /* VideoWallpaperManager.swift in Sources */,
 				AA0011 /* VideoFileManager.swift in Sources */,
 				AA0013 /* StatusItemManager.swift in Sources */,
 				AA0017 /* SettingsView.swift in Sources */,
-				AA3D13F72F050FE200D06F4E /* WallpaperDatabase.swift in Sources */,
+				B08BF8FF2F06B93F004B0E4C /* VideoPlayerPool.swift in Sources */,
 				AA0019 /* WallpaperPanelView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

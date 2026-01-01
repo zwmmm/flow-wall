@@ -8,10 +8,11 @@ class OnlineWallpaperViewModel: ObservableObject {
     @Published var wallpapers: [OnlineWallpaper] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var thumbnails: [String: NSImage] = [:]  // 缩略图缓存（备用）
+    @Published var thumbnails: [String: NSImage] = [:]  // 缩略图缓存(备用)
     @Published var currentPage = 0
     @Published var totalPages = 0
     @Published var downloadingIds: Set<String> = []  // 正在下载的壁纸 ID
+    @Published var downloadProgress: [String: Double] = [:]  // 下载进度 ID -> 进度(0-1)
 
     // MARK: - Private Properties
     private let apiClient = OnlineWallpaperAPIClient.shared
@@ -19,7 +20,7 @@ class OnlineWallpaperViewModel: ObservableObject {
     private var downloadQueue: [OnlineWallpaper] = []
     private var isDownloading = false
 
-    // MARK: - 搜索（移除默认关键词）
+    // MARK: - 搜索(移除默认关键词)
     func performSearch(query: String) {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -28,6 +29,9 @@ class OnlineWallpaperViewModel: ObservableObject {
         currentPage = 0
         totalPages = 0
         wallpapers.removeAll()
+
+        // 立即显示 loading 状态
+        isLoading = true
 
         // 开始加载新搜索结果
         Task {
@@ -136,23 +140,72 @@ class OnlineWallpaperViewModel: ObservableObject {
                 throw APIError.invalidURL
             }
 
-            let (tempFileURL, _) = try await URLSession.shared.download(from: url)
+            // 创建 URLSession 配置以追踪进度
+            let session = URLSession(configuration: .default, delegate: nil, delegateQueue: nil)
 
-            let fileManager = FileManager.default
-            let wallpaperPath = VideoFileManager.getVideoDirectory()
-            let fileName = getFileName(for: wallpaper)
-            let destinationURL = wallpaperPath.appendingPathComponent("\(fileName).mp4")
+            // 初始化进度
+            downloadProgress[wallpaper.id] = 0.0
 
-            if fileManager.fileExists(atPath: destinationURL.path) {
-                try fileManager.removeItem(at: destinationURL)
+            // 使用异步下载并追踪进度
+            let downloadTask = session.downloadTask(with: url) { [weak self] tempFileURL, response, error in
+                guard let self = self else { return }
+
+                Task { @MainActor in
+                    do {
+                        if let error = error {
+                            throw error
+                        }
+
+                        guard let tempFileURL = tempFileURL else {
+                            throw APIError.downloadFailed
+                        }
+
+                        let fileManager = FileManager.default
+                        let wallpaperPath = VideoFileManager.getVideoDirectory()
+                        let fileName = self.getFileName(for: wallpaper)
+                        let destinationURL = wallpaperPath.appendingPathComponent("\(fileName).mp4")
+
+                        if fileManager.fileExists(atPath: destinationURL.path) {
+                            try fileManager.removeItem(at: destinationURL)
+                        }
+
+                        try fileManager.moveItem(at: tempFileURL, to: destinationURL)
+
+                        // 下载成功,刷新本地壁纸列表
+                        NotificationCenter.default.post(name: NSNotification.Name("RefreshLocalWallpapers"), object: nil)
+
+                        // 清理进度
+                        self.downloadProgress.removeValue(forKey: wallpaper.id)
+
+                    } catch {
+                        self.downloadProgress.removeValue(forKey: wallpaper.id)
+                        self.showError("下载失败: \(error.localizedDescription)", duration: 3)
+                    }
+                }
             }
 
-            try fileManager.moveItem(at: tempFileURL, to: destinationURL)
+            // 监听下载进度
+            let observation = downloadTask.progress.observe(\Progress.fractionCompleted, options: [.new]) { (progress: Progress, _) in
+                Task { @MainActor in
+                    self.downloadProgress[wallpaper.id] = progress.fractionCompleted
+                }
+            }
 
-            // 下载成功，刷新本地壁纸列表
-            NotificationCenter.default.post(name: NSNotification.Name("RefreshLocalWallpapers"), object: nil)
+            downloadTask.resume()
+
+            // 等待下载完成
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                DispatchQueue.global().async {
+                    while downloadTask.state == URLSessionTask.State.running {
+                        Thread.sleep(forTimeInterval: 0.1)
+                    }
+                    observation.invalidate()
+                    continuation.resume()
+                }
+            }
 
         } catch {
+            downloadProgress.removeValue(forKey: wallpaper.id)
             showError("下载失败: \(error.localizedDescription)", duration: 3)
         }
     }

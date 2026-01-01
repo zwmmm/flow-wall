@@ -45,6 +45,7 @@ enum APIError: LocalizedError {
     case invalidResponse
     case httpError(statusCode: Int)
     case decodingError(Error)
+    case downloadFailed  // 下载失败
 
     var errorDescription: String? {
         switch self {
@@ -58,6 +59,8 @@ enum APIError: LocalizedError {
             return "HTTP 错误: \(code)"
         case .decodingError(let error):
             return "数据解析失败: \(error.localizedDescription)"
+        case .downloadFailed:
+            return "下载失败"
         }
     }
 }

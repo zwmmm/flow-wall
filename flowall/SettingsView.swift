@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import ServiceManagement
 
 // MARK: - 设置窗口控制器
@@ -7,7 +8,7 @@ class SettingsWindowController: NSWindowController {
 
     convenience init() {
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 420, height: 400),
+            contentRect: NSRect(x: 0, y: 0, width: AppConstants.UI.settingsWidth, height: AppConstants.UI.settingsHeight),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false
@@ -39,62 +40,128 @@ struct SettingsView: View {
     @AppStorage(AppConstants.UserDefaultsKey.wallpaperPath) private var wallpaperPath = VideoFileManager.getVideoDirectory().path
     @AppStorage(AppConstants.UserDefaultsKey.launchAtLogin) private var launchAtLogin = false
 
+    @State private var isCheckingUpdate = false
+    @State private var updateMessage = ""
+    @State private var showUpdateAlert = false
+
     var body: some View {
         VStack(spacing: 0) {
-            // 顶部标题
-            Text("Flowall")
-                .font(.system(size: 20, weight: .semibold))
-                .padding(.top, 20)
-                .padding(.bottom, 10)
-
-            Text("v1.0.0")
-                .font(.system(size: 11))
-                .foregroundColor(.secondary)
+            // 顶部 - 应用信息
+            aboutSection
+                .padding(.top, 24)
                 .padding(.bottom, 20)
 
             Divider()
 
-            // 设置列表
-            List {
-                SettingCell(
+            // 中间 - 设置列表
+            ScrollView {
+                VStack(spacing: 16) {
+                    // 功能设置组
+                    settingsGroup
+
+                    // 链接组
+                    linksGroup
+                }
+                .padding(20)
+            }
+
+            Divider()
+
+            // 底部 - 操作按钮
+            bottomActions
+                .padding(.horizontal, 20)
+                .padding(.vertical, 16)
+        }
+        .frame(width: AppConstants.UI.settingsWidth, height: AppConstants.UI.settingsHeight)
+        .alert("检查更新", isPresented: $showUpdateAlert) {
+            Button("确定", role: .cancel) {
+                updateMessage = ""
+            }
+        } message: {
+            Text(updateMessage)
+        }
+    }
+
+    // MARK: - 关于部分
+
+    private var aboutSection: some View {
+        VStack(spacing: 8) {
+            // 应用图标 (使用系统图标作为占位)
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 48))
+                .foregroundColor(.accentColor)
+                .frame(width: 64, height: 64)
+
+            // 应用名称
+            Text(AppVersion.appName)
+                .font(.system(size: 24, weight: .semibold))
+
+            // 版本号
+            Text(AppVersion.shortVersion)
+                .font(.system(size: 13))
+                .foregroundColor(.secondary)
+
+            // 简介
+            Text(AppVersion.description)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+                .padding(.top, 4)
+        }
+    }
+
+    // MARK: - 功能设置组
+
+    private var settingsGroup: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("功能设置")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                SettingRow(
+                    icon: "display",
                     title: "隐藏刘海屏",
-                    icon: "display"
+                    subtitle: "自动调整视频区域避开刘海"
                 ) {
                     Toggle("", isOn: $hideNotch)
                         .labelsHidden()
                 }
 
-                SettingCell(
+                Divider()
+                    .padding(.leading, 44)
+
+                SettingRow(
+                    icon: "folder",
                     title: "壁纸文件夹",
-                    icon: "folder"
+                    subtitle: "管理本地壁纸存储位置"
                 ) {
                     HStack(spacing: 8) {
                         Button(action: {
                             VideoFileManager.openVideoDirectory()
                         }) {
-                            HStack(spacing: 4) {
-                                Text(wallpaperPath)
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
-                                    .lineLimit(1)
-                                    .frame(maxWidth: 120, alignment: .trailing)
-
-                                Image(systemName: "arrow.up.forward.square")
-                                    .font(.system(size: 11))
-                                    .foregroundColor(.secondary)
-                            }
+                            Image(systemName: "arrow.up.forward.square")
+                                .font(.system(size: 13))
+                                .foregroundColor(.secondary)
                         }
                         .buttonStyle(.plain)
+                        .help("在访达中打开")
 
-                        Button("更改") {
+                        Button("更改...") {
                             selectWallpaperPath()
                         }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
                     }
                 }
 
-                SettingCell(
+                Divider()
+                    .padding(.leading, 44)
+
+                SettingRow(
+                    icon: "power",
                     title: "登录时启动",
-                    icon: "power"
+                    subtitle: "开机自动启动 Flowall"
                 ) {
                     Toggle("", isOn: $launchAtLogin)
                         .labelsHidden()
@@ -103,34 +170,94 @@ struct SettingsView: View {
                         }
                 }
             }
-            .listStyle(.inset)
-
-            Divider()
-
-            // 底部按钮
-            HStack(spacing: 16) {
-                Button(action: {
-                    openProjectPage()
-                }) {
-                    Image(systemName: "globe")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.plain)
-                .help("访问 GitHub")
-
-                Spacer()
-
-                Button("退出 Flowall") {
-                    NSApp.terminate(nil)
-                }
-                .buttonStyle(.plain)
-                .foregroundColor(.red)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(8)
         }
-        .frame(width: 420, height: 400)
+    }
+
+    // MARK: - 链接组
+
+    private var linksGroup: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("支持与反馈")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 4)
+
+            VStack(spacing: 0) {
+                LinkRow(
+                    icon: "checkmark.circle",
+                    title: "检查更新",
+                    subtitle: "查看是否有新版本可用"
+                ) {
+                    if isCheckingUpdate {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                            .frame(width: 20, height: 20)
+                    } else {
+                        Button("检查") {
+                            checkForUpdates()
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                    }
+                }
+
+                Divider()
+                    .padding(.leading, 44)
+
+                LinkRow(
+                    icon: "star.circle",
+                    iconColor: .orange,
+                    title: "GitHub 仓库",
+                    subtitle: "查看项目源代码"
+                ) {
+                    Button(action: AppVersion.openGitHub) {
+                        Image(systemName: "arrow.up.forward")
+                            .font(.system(size: 11))
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Divider()
+                    .padding(.leading, 44)
+
+                LinkRow(
+                    icon: "exclamationmark.bubble",
+                    iconColor: .blue,
+                    title: "问题反馈",
+                    subtitle: "报告 Bug 或提出建议"
+                ) {
+                    Button(action: AppVersion.openIssues) {
+                        Image(systemName: "arrow.up.forward")
+                            .font(.system(size: 11))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(8)
+        }
+    }
+
+    // MARK: - 底部操作
+
+    private var bottomActions: some View {
+        HStack {
+            // 版权信息
+            Text(AppVersion.copyright)
+                .font(.system(size: 10))
+                .foregroundColor(.secondary)
+
+            Spacer()
+
+            // 退出按钮
+            Button("退出 Flowall") {
+                NSApp.terminate(nil)
+            }
+            .buttonStyle(.plain)
+            .foregroundColor(.red)
+        }
     }
 
     // MARK: - Actions
@@ -167,41 +294,136 @@ struct SettingsView: View {
         }
     }
 
-    private func openProjectPage() {
-        if let url = URL(string: "https://github.com/zwmmm/flow-wall") {
-            NSWorkspace.shared.open(url)
+    private func checkForUpdates() {
+        isCheckingUpdate = true
+        updateMessage = ""
+
+        AppVersion.checkForUpdates { hasUpdate, latestVersion, downloadURL, error in
+            isCheckingUpdate = false
+
+            if let error = error {
+                updateMessage = "检查更新失败\n\(error)"
+                showUpdateAlert = true
+                return
+            }
+
+            if hasUpdate, let version = latestVersion {
+                updateMessage = "发现新版本 v\(version)\n当前版本: \(AppVersion.version)"
+                showUpdateAlert = true
+
+                // 可选:直接打开下载页面
+                if let urlString = downloadURL, let url = URL(string: urlString) {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        NSWorkspace.shared.open(url)
+                    }
+                }
+            } else {
+                updateMessage = "已是最新版本 \(AppVersion.version)"
+                showUpdateAlert = true
+            }
         }
     }
 }
 
-// MARK: - 设置单元格
+// MARK: - 设置行组件
 
-struct SettingCell<Content: View>: View {
-    let title: String
+struct SettingRow<Content: View>: View {
     let icon: String
+    var iconColor: Color = .secondary
+    let title: String
+    let subtitle: String
     let content: Content
 
-    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
-        self.title = title
+    init(
+        icon: String,
+        iconColor: Color = .secondary,
+        title: String,
+        subtitle: String,
+        @ViewBuilder content: () -> Content
+    ) {
         self.icon = icon
+        self.iconColor = iconColor
+        self.title = title
+        self.subtitle = subtitle
         self.content = content()
     }
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center, spacing: 12) {
+            // 图标
             Image(systemName: icon)
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
-                .frame(width: 28)
+                .font(.system(size: 18))
+                .foregroundColor(iconColor)
+                .frame(width: 32, height: 32)
 
-            Text(title)
-                .font(.system(size: 13))
+            // 文本
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13))
+
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
 
             Spacer()
 
+            // 控件
             content
         }
-        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+    }
+}
+
+// MARK: - 链接行组件
+
+struct LinkRow<Content: View>: View {
+    let icon: String
+    var iconColor: Color = .secondary
+    let title: String
+    let subtitle: String
+    let content: Content
+
+    init(
+        icon: String,
+        iconColor: Color = .secondary,
+        title: String,
+        subtitle: String,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.icon = icon
+        self.iconColor = iconColor
+        self.title = title
+        self.subtitle = subtitle
+        self.content = content()
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            // 图标
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(iconColor)
+                .frame(width: 32, height: 32)
+
+            // 文本
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 13))
+
+                Text(subtitle)
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            // 控件
+            content
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 }
 

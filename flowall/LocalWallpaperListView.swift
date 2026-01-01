@@ -10,15 +10,28 @@ struct LocalWallpaperCard: View {
 
     @State private var isHovered = false
 
+    // 计算高度,保持原视频宽高比
+    private var cardHeight: CGFloat {
+        guard let thumbnail = thumbnail else { return 140 }
+        let imageSize = thumbnail.size
+        let aspectRatio = imageSize.height / imageSize.width
+        // 卡片宽度 = 面板宽度 - 左右边距
+        let cardWidth: CGFloat = 280 - 15 * 2  // panelWidth - padding * 2
+        return cardWidth * aspectRatio
+    }
+
     var body: some View {
         ZStack(alignment: .center) {
             // 显示缩略图或视频
             if let thumbnail = thumbnail {
                 Image(nsImage: thumbnail)
                     .resizable()
-                    .aspectRatio(contentMode: .fill)
+                    .aspectRatio(contentMode: .fill)  // 保持宽高比
+                    .frame(width: 250, height: cardHeight)  // 固定宽度,高度自适应
+                    .clipped()
             } else {
                 Color.gray.opacity(0.2)
+                    .frame(height: 140)
             }
 
             // 悬停时显示播放按钮
@@ -35,8 +48,7 @@ struct LocalWallpaperCard: View {
                 }
             }
         }
-        .frame(height: 140)
-        .clipped()
+        .frame(height: cardHeight)  // 使用动态计算的高度
         .cornerRadius(8)
         .onHover { hovering in
             isHovered = hovering
@@ -72,6 +84,7 @@ struct LocalWallpaperListView: View {
                                     applyWallpaper(wallpaper)
                                 }
                             )
+                            .id(wallpaper.path)  // 添加稳定的 ID,防止重复渲染
                         }
                     }
                     .padding(.horizontal, 15)
