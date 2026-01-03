@@ -7,8 +7,8 @@ class VideoPreviewWindowController: NSWindowController {
 
     convenience init(videoURL: URL, title: String = "预览") {
         // 默认窗口尺寸 16:9,但允许调整
-        let windowWidth: CGFloat = 960
-        let windowHeight: CGFloat = 540
+        let windowWidth: CGFloat = 1440
+        let windowHeight: CGFloat = 810
 
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: windowWidth, height: windowHeight),

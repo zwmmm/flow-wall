@@ -5,7 +5,7 @@ import Foundation
 class OnlineWallpaperAPIClient: ObservableObject {
     static let shared = OnlineWallpaperAPIClient()
 
-    private let baseURL = "https://flowall-api.sanyi.deno.net"
+    private let baseURL = "https://ljlklchwubjgdqwmxmfx.supabase.co"
     private let session: URLSession
 
     private init() {
@@ -21,7 +21,7 @@ class OnlineWallpaperAPIClient: ObservableObject {
         limit: Int = 20,
         search: String? = nil
     ) async throws -> WallpaperAPIResponse {
-        var components = URLComponents(string: "\(baseURL)/api/v1/wallpapers")!
+        var components = URLComponents(string: "\(baseURL)/functions/v1/flowall")!
 
         var queryItems: [URLQueryItem] = [
             URLQueryItem(name: "page", value: "\(page)"),
